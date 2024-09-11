@@ -20,6 +20,9 @@ const baseMaps = [
       },
 ];
 
+
+
+
   
 router.post("/baseMaps", (req, res) => {
     res.json(baseMaps);
