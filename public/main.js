@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     osm.addTo(map);
+    
+    // スケールバーの追加
+    L.control.scale().addTo(map);
 
     // レイヤーコントロールの追加 UI
     L.control.layers(baseLayers).addTo(map);
@@ -79,6 +82,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    // 現在地表示機能
+    function showCurrentLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                L.marker([lat, lng]).addTo(map)
+                    .bindPopup('現在地')
+                    .openPopup();
+                map.setView([lat, lng], 15);
+            }, (error) => {
+                console.error('Error getting location:', error);
+            });
+        } else {
+            console.error('Geolocation is not supported by this browser.');
+        }
+    }
+
+
 
     loadSheltersData();
+    showCurrentLocation();
 });
