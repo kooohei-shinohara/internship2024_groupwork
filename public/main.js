@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     osm.addTo(map);
+    
+    // スケールバーの追加
+    L.control.scale().addTo(map);
 
     async function loadSheltersData() {
         try {
