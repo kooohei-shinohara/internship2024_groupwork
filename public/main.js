@@ -5,7 +5,25 @@ document.addEventListener('DOMContentLoaded', () => {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
 
+    const satellite = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
+    });
+
+    const aviation  = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
+    });
+
+
+    const baseLayers = {
+        "OpenStreetMap": osm,
+        "Satellite": satellite,
+        "Aviation":aviation
+    };
+
     osm.addTo(map);
+
+    // レイヤーコントロールの追加 UI
+    L.control.layers(baseLayers).addTo(map);
 
     async function loadSheltersData() {
         try {
