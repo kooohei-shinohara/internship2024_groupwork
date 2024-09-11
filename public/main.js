@@ -1,14 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
     const map = L.map('map').setView([35.682839, 139.759455], 10);
 
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    async function layerData() {
+        response = await fetch("/api/baseMaps", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+    const baseMaps = await response.json();
+
+    
+
+    const osm = L.tileLayer(baseMaps[2].url, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
+
+    const satellite = L.tileLayer(baseMaps[0].url, {
+        attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
+    });
+
+    const aviation  = L.tileLayer(baseMaps[1].url,{
+        attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
+    });
+
+
+    const baseLayers = {
+        "OpenStreetMap": osm,
+        "Satellite": satellite,
+        "Aviation":aviation
+    };
 
     osm.addTo(map);
     
     // スケールバーの追加
     L.control.scale().addTo(map);
+
+    // レイヤーコントロールの追加 UI
+    L.control.layers(baseLayers).addTo(map);
+}
 
     async function loadSheltersData() {
         try {
@@ -83,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-
+    layerData();
     loadSheltersData();
     showCurrentLocation();
 });
