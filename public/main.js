@@ -11,11 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const baseMaps = await response.json();
 
-
-
-        const osm = L.tileLayer(baseMaps[2].url, {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        });
+    const satellite = L.tileLayer(baseMaps[0].url, {
+        attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
+    });
 
         const satellite = L.tileLayer(baseMaps[0].url, {
             attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
@@ -25,6 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
             attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
         });
 
+    const osm = L.tileLayer(baseMaps[2].url, {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
 
         const baseLayers = {
             "OpenStreetMap": osm,
@@ -32,7 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
             "Aviation": aviation
         };
 
-        osm.addTo(map);
+    osm.addTo(map);
+    
+    // スケールバーの追加
+    L.control.scale({
+        position:"bottomright"
+    }).addTo(map);
 
         // スケールバーの追加
         L.control.scale().addTo(map);
