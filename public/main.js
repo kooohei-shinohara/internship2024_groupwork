@@ -35,7 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
     osm.addTo(map);
     
     // スケールバーの追加
-    L.control.scale().addTo(map);
+    L.control.scale({
+        position:"bottomright"
+    }).addTo(map);
 
     // レイヤーコントロールの追加 UI
     L.control.layers(baseLayers).addTo(map);
