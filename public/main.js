@@ -3,32 +3,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function layerData() {
         response = await fetch("/api/baseMaps", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
         });
 
-    const baseMaps = await response.json();
+        const baseMaps = await response.json();
 
     const satellite = L.tileLayer(baseMaps[0].url, {
         attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
     });
 
-    const aviation  = L.tileLayer(baseMaps[1].url,{
-        attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
-    });
+        const satellite = L.tileLayer(baseMaps[0].url, {
+            attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
+        });
+
+        const aviation = L.tileLayer(baseMaps[1].url, {
+            attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
+        });
 
     const osm = L.tileLayer(baseMaps[2].url, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
 
 
-    const baseLayers = {
-        "OpenStreetMap": osm,
-        "Satellite": satellite,
-        "Aviation":aviation
-    };
+        const baseLayers = {
+            "OpenStreetMap": osm,
+            "Satellite": satellite,
+            "Aviation": aviation
+        };
 
     osm.addTo(map);
     
@@ -37,46 +41,57 @@ document.addEventListener('DOMContentLoaded', () => {
         position:"bottomright"
     }).addTo(map);
 
-    // レイヤーコントロールの追加 UI
-    L.control.layers(baseLayers).addTo(map);
-}
+        // スケールバーの追加
+        L.control.scale().addTo(map);
 
-    async function loadSheltersData() {
+        // レイヤーコントロールの追加 UI
+        L.control.layers(baseLayers).addTo(map);
+    }
+
+    let tsunamiLayer;
+    let shelterLayer;
+    async function loadOverLayMapsData() {
         try {
-            const response = await fetch('http://localhost:3002/api/emergency_shelters');
+            const response = await fetch('/api/overLayMaps', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
             if (!response.ok) {
-                throw new Error('Failed to fetch shelters data');
+                throw new Error('Failed to fetch overLayMaps data');
             }
             const data = await response.json();
-            const shelterLayer = L.geoJSON(data, {
+            shelterLayer = L.geoJSON(data[1], {
                 pointToLayer: (feature, latlng) => L.marker(latlng),
                 onEachFeature: (feature, layer) => {
-                    layer.on('click', () => {
-                        showInfoTable(feature.properties);
-                    });
-                    layer.bindPopup(`<strong>${feature.properties.name}</strong>`);
+                    layer.bindPopup(`<strong>${feature.properties.P20_002}</strong>`);
+                }
+            }).addTo(map);
+            tsunamiLayer = L.geoJSON(data[0], {
+                style: {
+                    color: 'blue',
+                    weight: 2,
+                    opacity: 0.5
                 }
             }).addTo(map);
         } catch (error) {
             console.error('Error fetching shelters data:', error);
         }
     }
-
-    function showInfoTable(properties) {
-        const infoTableBody = document.getElementById('infoTableBody');
-        infoTableBody.innerHTML = ''; // 既存の行をクリア
-
-        for (const [key, value] of Object.entries(properties)) {
-            const row = document.createElement('tr');
-            const keyCell = document.createElement('td');
-            keyCell.textContent = key;
-            const valueCell = document.createElement('td');
-            valueCell.textContent = value;
-            row.appendChild(keyCell);
-            row.appendChild(valueCell);
-            infoTableBody.appendChild(row);
+    // ズームレベルに応じた洪水レイヤーの表示/非表示
+    map.on('zoomend', () => {
+        if (tsunamiLayer) {
+            if (map.getZoom() < 15) {
+                map.removeLayer(tsunamiLayer);
+            } else {
+                if (!map.hasLayer(tsunamiLayer)) {
+                    map.addLayer(tsunamiLayer);
+                }
+            }
         }
-    }
+    });
+
 
     // 検索ボタンのイベントリスナーをDOMContentLoadedの中で定義
     const searchButton = document.getElementById('searchButton');
@@ -85,11 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
             if (shelterLayer) {
                 shelterLayer.eachLayer((layer) => {
-                    const shelterName = layer.feature.properties.name.toLowerCase();
+                    const shelterName = layer.feature.properties.P20_002.toLowerCase();
                     if (shelterName.includes(searchInput)) {
-                        map.setView(layer.getLatLng(), 15);
+                        map.setView(layer.feature.geometry.coordinates[0], 15);
                         layer.openPopup();
-                        showInfoTable(layer.feature.properties); // 検索結果を表示
                     }
                 });
             }
@@ -115,6 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     layerData();
-    loadSheltersData();
+    loadOverLayMapsData();
     showCurrentLocation();
 });
