@@ -2,20 +2,38 @@
     height: calc(100vh - 140px); /* ヘッダーとフッターの高さを除外 */
     width: 100%;
 }
-.footer {
-    height: 60px;
-    background-color: #f8f9fa;
-}
+
 .footer {
     position: fixed;
     bottom: 0;
     width: 100%;
     height: 60px;
-    background-color: #f8f9fa;
+    background-color: #ffffff;
     text-align: center;
     line-height: 60px;
+    color: blue; /* フッター内のテキストを青くする */
 }
+
 #infoTableContainer {
     height: calc(100vh - 140px); /* ヘッダーとフッターの高さを除外 */
     overflow-y: auto;
+}
+
+.leaflet-control-layers-selector {
+    width: 20px;/*選択肢丸の大きさ*/
+    height: 20px;
+    cursor: pointer;/*ポインターに当てたときに指になる*/
+    
+}
+
+.leaflet-control-layers label {
+    font-size: 20px;
+    color: rgb(0, 17, 255); /* ラベルの文字の色 */
+    margin-left: 5px; /* チェックボックスとラベルの間のスペース */
+}
+
+.leaflet-control-layers {
+    background-color: rgba(248, 191, 246, 0.884);/*ボックスの背景*/
+    border-radius: 8px;/*角の丸み*/
+    padding: 17px;
 }
