@@ -3,47 +3,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function layerData() {
         response = await fetch("/api/baseMaps", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
         });
 
-    const baseMaps = await response.json();
-
-    
-
-    const osm = L.tileLayer(baseMaps[2].url, {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    });
-
-    const satellite = L.tileLayer(baseMaps[0].url, {
-        attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
-    });
-
-    const aviation  = L.tileLayer(baseMaps[1].url,{
-        attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
-    });
+        const baseMaps = await response.json();
 
 
-    const baseLayers = {
-        "OpenStreetMap": osm,
-        "Satellite": satellite,
-        "Aviation":aviation
-    };
 
-    osm.addTo(map);
-    
-    // スケールバーの追加
-    L.control.scale().addTo(map);
+        const osm = L.tileLayer(baseMaps[2].url, {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
 
-    // レイヤーコントロールの追加 UI
-    L.control.layers(baseLayers).addTo(map);
-}
+        const satellite = L.tileLayer(baseMaps[0].url, {
+            attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
+        });
+
+        const aviation = L.tileLayer(baseMaps[1].url, {
+            attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
+        });
+
+
+        const baseLayers = {
+            "OpenStreetMap": osm,
+            "Satellite": satellite,
+            "Aviation": aviation
+        };
+
+        osm.addTo(map);
+
+        // スケールバーの追加
+        L.control.scale().addTo(map);
+
+        // レイヤーコントロールの追加 UI
+        L.control.layers(baseLayers).addTo(map);
+    }
 
     async function loadSheltersData() {
         try {
-            const response = await fetch('http://localhost:3002/api/emergency_shelters');
+            const response = await fetch('http://localhost:3002/api/overLayMaps');
             if (!response.ok) {
                 throw new Error('Failed to fetch shelters data');
             }
