@@ -11,10 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const baseMaps = await response.json();
 
-    const satellite = L.tileLayer(baseMaps[0].url, {
-        attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
-    });
-
         const satellite = L.tileLayer(baseMaps[0].url, {
             attribution: '&copy; <a href="https://www.opentopomap.org/copyright">OpenTopoMap</a> contributors'
         });
