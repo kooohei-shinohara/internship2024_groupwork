@@ -123,8 +123,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+   
 
     layerData();
     loadOverLayMapsData();
+    map.on("overlayadd",function(){
+        let bounds = new L.LatLngBounds();
+        map.eachLayer(function(layer){
+            if (layer instanceof L.FeatureGroup  && shelterLayer==layer){
+                bounds.extend(layer.getBounds());
+                console.error('表示されない')
+            }
+        });
+            if (bounds.isValid()){
+                map.fitBounds(bounds);
+            }else{
+                //何もしない
+            }
+    });
     showCurrentLocation();
 });
