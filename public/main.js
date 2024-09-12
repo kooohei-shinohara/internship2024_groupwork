@@ -41,26 +41,50 @@ document.addEventListener('DOMContentLoaded', () => {
         L.control.layers(baseLayers).addTo(map);
     }
 
+    let tsunamiLayer;
+    let shelterLayer;
     async function loadOverLayMapsData() {
         try {
-            const response = await fetch('http://localhost:3002/api/overLayMaps');
+            const response = await fetch('/api/overLayMaps', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
             if (!response.ok) {
-                throw new Error('Failed to fetch shelters data');
+                throw new Error('Failed to fetch overLayMaps data');
             }
             const data = await response.json();
-            const shelterLayer = L.geoJSON(data, {
+            shelterLayer = L.geoJSON(data[1], {
                 pointToLayer: (feature, latlng) => L.marker(latlng),
                 onEachFeature: (feature, layer) => {
-                    layer.on('click', () => {
-                        showInfoTable(feature.properties);
-                    });
-                    layer.bindPopup(`<strong>${feature.properties.name}</strong>`);
+                    layer.bindPopup(`<strong>${feature.properties.P20_002}</strong>`);
+                }
+            }).addTo(map);
+            tsunamiLayer = L.geoJSON(data[0], {
+                style: {
+                    color: 'blue',
+                    weight: 2,
+                    opacity: 0.5
                 }
             }).addTo(map);
         } catch (error) {
             console.error('Error fetching shelters data:', error);
         }
     }
+    // ズームレベルに応じた洪水レイヤーの表示/非表示
+    map.on('zoomend', () => {
+        if (tsunamiLayer) {
+            if (map.getZoom() < 15) {
+                map.removeLayer(tsunamiLayer);
+            } else {
+                if (!map.hasLayer(tsunamiLayer)) {
+                    map.addLayer(tsunamiLayer);
+                }
+            }
+        }
+    });
+
 
     // 検索ボタンのイベントリスナーをDOMContentLoadedの中で定義
     const searchButton = document.getElementById('searchButton');
@@ -69,11 +93,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
             if (shelterLayer) {
                 shelterLayer.eachLayer((layer) => {
-                    const shelterName = layer.feature.properties.name.toLowerCase();
+                    const shelterName = layer.feature.properties.P20_002.toLowerCase();
                     if (shelterName.includes(searchInput)) {
-                        map.setView(layer.getLatLng(), 15);
+                        map.setView(layer.feature.geometry.coordinates[0], 15);
                         layer.openPopup();
-                        showInfoTable(layer.feature.properties); // 検索結果を表示
                     }
                 });
             }
